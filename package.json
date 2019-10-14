@@ -1,6 +1,7 @@
 {
   "name": "cloud-doc",
   "version": "0.1.0",
+  "main": "main.js",
   "private": true,
   "dependencies": {
     "react": "^16.10.2",
@@ -11,7 +12,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "electron ."
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -29,6 +31,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^6.0.12"
+    "electron": "^6.0.12",
+    "electron-is-dev": "^1.1.0"
   }
 }
