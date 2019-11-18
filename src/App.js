@@ -41,6 +41,8 @@ function App() {
         <div className="col-9 right-panel">
           <TabList
             files={defaultFiles}
+            activeId="1"
+            onTabClick={(id) => console.log(id)}
           />
         </div>
       </div>
