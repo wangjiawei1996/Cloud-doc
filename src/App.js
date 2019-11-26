@@ -30,6 +30,23 @@ function App() {
   const tabClose = (id) => {
     const tabsWithout = openedFileIDs.filter(fileID => fileID !== id)
     setOpenedFileIDs(tabsWithout)
+    if (tabsWithout.length > 0) {
+      setActiveFileID(tabsWithout[0])
+    } else {
+      setActiveFileID('')
+    }
+  }
+  const fileChange = (id, value) => {
+    const newFiles = files.map(file => {
+      if (file.id === id) {
+        file.body = value
+      }
+      return file
+    })
+    setFiles(newFiles)
+    if (!unsavedFileIDs.includes(id)) {
+      setUnsavedFileIDs([ ...unsavedFileIDs, id])
+    }
   }
   const activeFile = files.find(file => file.id === activeFileID)
   return (
@@ -80,7 +97,7 @@ function App() {
               <SimpleMDE
                 key={activeFile && activeFile.id}
                 value={activeFile && activeFile.body}
-                onChange={(value) => {console.log(value)}}
+                onChange={(value) => {fileChange(activeFile.id, value)}}
                 options={{
                   minHeight: '515px'
                 }}
