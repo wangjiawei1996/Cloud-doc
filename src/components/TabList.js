@@ -25,7 +25,7 @@ const TabList = ({ files, activeId, unsaveIds, onTabClick, onCloseTab }) => {
                 {file.title}
                 <span
                   className="ml-2 close-icon"
-                  onClick={(e) => {e.stopPropagation(); onTabClick(file.id)}}
+                  onClick={(e) => {e.stopPropagation(); onCloseTab(file.id)}}
                 >
                   <FontAwesomeIcon
                     icon={faTimes}

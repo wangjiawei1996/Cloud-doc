@@ -9,16 +9,29 @@ import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
 import defaultFiles from './utils/defaultFiles'
-import { file } from '@babel/types';
+// import { file } from '@babel/types';
 function App() {
   const [ files, setFiles ] = useState(defaultFiles)
   const [ activeFileID, setActiveFileID ] = useState('')
   const [ openedFileIDs, setOpenedFileIDs] = useState([])
   const [ unsavedFileIDs, setUnsavedFileIDs] = useState([])
-  const openedFiles = openedFileIDs.map(openId => {
-    return files.find(file => file.id === openId )
+  const openedFiles = openedFileIDs.map(openID => {
+    return files.find(file => file.id === openID )
   })
-  const activeFile = files.find(file => file.find === activeFileID)
+  const fileClick = (fileID) => {
+    setActiveFileID(fileID)
+    if (!openedFileIDs.includes(fileID)) {
+      setOpenedFileIDs([ ...openedFileIDs, fileID ])
+    }
+  }
+  const tabClick = (fileID) => {
+    setActiveFileID(fileID)
+  }
+  const tabClose = (id) => {
+    const tabsWithout = openedFileIDs.filter(fileID => fileID !== id)
+    setOpenedFileIDs(tabsWithout)
+  }
+  const activeFile = files.find(file => file.id === activeFileID)
   return (
     <div className="App container-fluid px-0">
       <div className="row no-gutters">
@@ -28,7 +41,7 @@ function App() {
           />
           <FileList
             files={files}
-            onFileClick={(id) => {console.log(id)}}
+            onFileClick={fileClick}
             onFileDelete={(id) => {console.log('deleting', id)}}
             onSaveEdit={(id, newValue) => {console.log(id); console.log(newValue)}}
           />
@@ -61,10 +74,11 @@ function App() {
                 files={openedFiles}
                 activeId={activeFileID}
                 unsaveIds={unsavedFileIDs}
-                onTabClick={(id) => console.log(id)}
-                onCloseTab={(id) => console.log('closing', id)}
+                onTabClick={tabClick}
+                onCloseTab={tabClose}
               />
               <SimpleMDE
+                key={activeFile && activeFile.id}
                 value={activeFile && activeFile.body}
                 onChange={(value) => {console.log(value)}}
                 options={{
