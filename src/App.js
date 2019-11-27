@@ -48,6 +48,20 @@ function App() {
       setUnsavedFileIDs([ ...unsavedFileIDs, id])
     }
   }
+  const deleteFile = (id) => {
+    const newFiles = files.filter(file => file.id !== id)
+    setFiles(newFiles)
+    tabClose(id)
+  }
+  const updateFileName = (id, title) => {
+    const newFile = files.map(file => {
+      if (file.id === id) {
+        file.title = title;
+      }
+       return file
+    })
+    setFiles(newFile)
+  }
   const activeFile = files.find(file => file.id === activeFileID)
   return (
     <div className="App container-fluid px-0">
@@ -59,8 +73,8 @@ function App() {
           <FileList
             files={files}
             onFileClick={fileClick}
-            onFileDelete={(id) => {console.log('deleting', id)}}
-            onSaveEdit={(id, newValue) => {console.log(id); console.log(newValue)}}
+            onFileDelete={deleteFile}
+            onSaveEdit={updateFileName }
           />
           <div className='row no-gutters button-group'>
             <div className='col'>
