@@ -15,6 +15,7 @@ function App() {
   const [ activeFileID, setActiveFileID ] = useState('')
   const [ openedFileIDs, setOpenedFileIDs] = useState([])
   const [ unsavedFileIDs, setUnsavedFileIDs] = useState([])
+  const [ searchedFiles, setSearchedFiles] = useState([])
   const openedFiles = openedFileIDs.map(openID => {
     return files.find(file => file.id === openID )
   })
@@ -54,24 +55,30 @@ function App() {
     tabClose(id)
   }
   const updateFileName = (id, title) => {
-    const newFile = files.map(file => {
+    const newFiles = files.map(file => {
       if (file.id === id) {
         file.title = title;
       }
        return file
     })
-    setFiles(newFile)
+    setFiles(newFiles)
+  }
+  const fileSearch = (keyword) => {
+    const newFiles = files.filter(file => file.title.includes(keyword))
+    setSearchedFiles(newFiles)
   }
   const activeFile = files.find(file => file.id === activeFileID)
+  const fileListArr = (searchedFiles.length > 0) ? searchedFiles :  files
   return (
     <div className="App container-fluid px-0">
       <div className="row no-gutters">
         <div className="col-3 bg-light left-panel">
           <FileSearch
-            onFileSearch={(value) => {console.log(value)}}
+            title='My Document'
+            onFileSearch={fileSearch}
           />
           <FileList
-            files={files}
+            files={fileListArr}
             onFileClick={fileClick}
             onFileDelete={deleteFile}
             onSaveEdit={updateFileName }
