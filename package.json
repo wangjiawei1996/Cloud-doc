@@ -14,7 +14,8 @@
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-scripts": "3.2.0",
-    "react-simplemde-editor": "^4.1.0"
+    "react-simplemde-editor": "^4.1.0",
+    "uuid": "^3.3.3"
   },
   "scripts": {
     "start": "react-scripts start",
