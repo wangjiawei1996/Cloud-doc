@@ -59,6 +59,7 @@ function App() {
     const newFiles = files.map(file => {
       if (file.id === id) {
         file.title = title;
+        file.isNew = false
       }
        return file
     })
@@ -76,7 +77,8 @@ function App() {
         id: newID,
         title: '',
         body: '## 请输入 Markdown',
-        createAt: new Date().getTime()
+        createAt: new Date().getTime(),
+        isNew: true
       }
     ]
     setFiles(newFiles)
