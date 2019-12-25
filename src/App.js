@@ -11,7 +11,7 @@ import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
 import defaultFiles from './utils/defaultFiles'
-// import { file } from '@babel/types';
+const fs = window.require('fs')
 function App() {
   const [ files, setFiles ] = useState(flattenArr(defaultFiles)) 
   const [ activeFileID, setActiveFileID ] = useState('')
