@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { faPlus, faFileImport } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faFileImport, faSave } from '@fortawesome/free-solid-svg-icons';
 import SimpleMDE from "react-simplemde-editor";
 import uuidv4 from 'uuid/v4'
 import { flattenArr, objToArr} from './utils/helper'
+import fileHelper from './utils/fileHelper'
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "easymde/dist/easymde.min.css";
@@ -11,7 +12,8 @@ import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
 import defaultFiles from './utils/defaultFiles'
-const fs = window.require('fs')
+const { join } = window.require('path')
+const { remote } = window.require('electron')
 function App() {
   const [ files, setFiles ] = useState(flattenArr(defaultFiles)) 
   const [ activeFileID, setActiveFileID ] = useState('')
@@ -19,6 +21,12 @@ function App() {
   const [ unsavedFileIDs, setUnsavedFileIDs] = useState([])
   const [ searchedFiles, setSearchedFiles] = useState([])
   const filesArr = objToArr(files)
+  const activeFile = files[activeFileID]
+  const openedFiles = openedFileIDs.map(openID => {
+    return files[openID]
+  })
+  const fileListArr = (searchedFiles.length > 0) ? searchedFiles :  filesArr
+  const savedLocation = remote.app.getPath('documents')
   
   const fileClick = (fileID) => {
     setActiveFileID(fileID)
@@ -50,9 +58,19 @@ function App() {
     setFiles(files)
     tabClose(id)
   }
-  const updateFileName = (id, title) => {
+  const updateFileName = (id, title,isNew) => {
     const modifiedFile = { ...files[id], title, isNew: false}
-    setFiles({ ...files, [id]: modifiedFile})
+    if (isNew) {
+      fileHelper.writeFile(join(savedLocation, `${title}.md`), files[id].body).then(() => {
+        setFiles({ ...files, [id]: modifiedFile})
+      })
+    } else {
+      fileHelper.renameFile(join(savedLocation, `${files[id].title}.md`),
+      join(savedLocation, `${title}.md`)
+      ).then(() => {
+        setFiles({ ...files, [id]: modifiedFile})
+      })
+    }
   }
   const fileSearch = (keyword) => {
     const newFiles = filesArr.filter(file => file.title.includes(keyword))
@@ -69,11 +87,13 @@ function App() {
   }
     setFiles({ ...files, [newID]: newFile})
   }
-  const activeFile = files[activeFileID]
-  const openedFiles = openedFileIDs.map(openID => {
-    return files[openID]
-  })
-  const fileListArr = (searchedFiles.length > 0) ? searchedFiles :  filesArr
+  const saveCurrentFile = () => {
+    fileHelper.writeFile(join(savedLocation, `${activeFile.title}.md`),
+      activeFile.body
+    ).then(() => {
+      setUnsavedFileIDs(unsavedFileIDs.filter(id => id !== activeFile.id))
+    })
+  }
   return (
     <div className="App container-fluid px-0">
       <div className="row no-gutters">
@@ -128,6 +148,12 @@ function App() {
                 options={{
                   minHeight: '515px'
                 }}
+              />
+              <BottomBtn
+                text='保存'
+                colorClass='btn-success'
+                icon={faSave}
+                onBtnClick={saveCurrentFile}
               />
             </>
           }
