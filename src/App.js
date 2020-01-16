@@ -14,6 +14,9 @@ import TabList from './components/TabList'
 import defaultFiles from './utils/defaultFiles'
 const { join } = window.require('path')
 const { remote } = window.require('electron')
+const Store = window.require('electron-store')
+const store = new Store()
+store.set('name', 'viking')
 function App() {
   const [ files, setFiles ] = useState(flattenArr(defaultFiles)) 
   const [ activeFileID, setActiveFileID ] = useState('')
