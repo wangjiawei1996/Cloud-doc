@@ -45,6 +45,13 @@ function App() {
   
   const fileClick = (fileID) => {
     setActiveFileID(fileID)
+    const currentFile = files[fileID]
+    if (!currentFile.isLoaded) {
+      fileHelper.readFile(currentFile.path).then(value => {
+        const newFile = { ...files[fileID], body: value, isLoaded: true }
+        setFiles({ ...files, [fileID]: newFile})
+      })
+    }
     if (!openedFileIDs.includes(fileID)) {
       setOpenedFileIDs([ ...openedFileIDs, fileID ])
     }
