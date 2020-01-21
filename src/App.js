@@ -76,10 +76,17 @@ function App() {
     }
   }
   const deleteFile = (id) => {
-    delete files[id]
-    setFiles(files)
-    saveFilesToStore(files)
-    tabClose(id)
+    if (files[id].isNew) {
+      const { [id]: value, ...afterDelete } = files
+      setFiles(afterDelete)
+    } else {
+      fileHelper.deleteFile(files[id].path).then(() => {
+        const { [id]: value, ...afterDelete } = files
+        setFiles(afterDelete)
+        saveFilesToStore(files)
+        tabClose(id)
+      })
+    }
   }
   const updateFileName = (id, title,isNew) => {
     const newPath = join(savedLocation, `${title}.md`)
