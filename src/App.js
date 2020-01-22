@@ -11,7 +11,6 @@ import FileSearch from './components/FileSearch'
 import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
-import defaultFiles from './utils/defaultFiles'
 const { join } = window.require('path')
 const { remote } = window.require('electron')
 const Store = window.require('electron-store')
@@ -127,6 +126,17 @@ function App() {
       setUnsavedFileIDs(unsavedFileIDs.filter(id => id !== activeFile.id))
     })
   }
+  const importFiles = () => {
+    remote.dialog.showOpenDialog({
+      title: '选择导入的 MarkDown 文件',
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        {name: 'Markdown files', extensions: ['md']}
+      ]
+    }, (paths) => {
+      console.log(paths)
+    })
+  }
   return (
     <div className="App container-fluid px-0">
       <div className="row no-gutters">
@@ -155,6 +165,7 @@ function App() {
                 text='导入'
                 colorClass='btn-success'
                 icon={faFileImport}
+                onBtnClick={importFiles}
               />
             </div>
           </div>
