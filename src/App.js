@@ -11,7 +11,7 @@ import FileSearch from './components/FileSearch'
 import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
-const { join, basename, extname } = window.require('path')
+const { join, basename, extname, dirname } = window.require('path')
 const { remote } = window.require('electron')
 const Store = window.require('electron-store')
 const fileStore = new Store({'name': 'Files Data'})
@@ -88,7 +88,7 @@ function App() {
     }
   }
   const updateFileName = (id, title,isNew) => {
-    const newPath = join(savedLocation, `${title}.md`)
+    const newPath = isNew ? join(savedLocation, `${title}.md`) : join(dirname(files[id].path), `${title}.md`)
     const modifiedFile = { ...files[id], title, isNew: false, path: newPath }
     const newFiles = { ...files, [id]: modifiedFile }
     if (isNew) {
@@ -97,7 +97,7 @@ function App() {
         saveFilesToStore(newFiles)
       })
     } else {
-      const oldPath = join(savedLocation, `${files[id].title}.md`)
+      const oldPath = files[id].path
       fileHelper.renameFile(oldPath, newPath).then(() => {
         setFiles(newFiles)
         saveFilesToStore(newFiles)
@@ -120,7 +120,7 @@ function App() {
     setFiles({ ...files, [newID]: newFile})
   }
   const saveCurrentFile = () => {
-    fileHelper.writeFile(join(savedLocation, `${activeFile.title}.md`),
+    fileHelper.writeFile(activeFile.path,
       activeFile.body
     ).then(() => {
       setUnsavedFileIDs(unsavedFileIDs.filter(id => id !== activeFile.id))
@@ -148,7 +148,6 @@ function App() {
             path,
           }
         })
-        console.log(importFilesArr)
         const newFiles = { ...files, ...flattenArr(importFilesArr)}
         setFiles(newFiles)
         saveFilesToStore(newFiles)
