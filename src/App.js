@@ -11,7 +11,7 @@ import FileSearch from './components/FileSearch'
 import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
-const { join } = window.require('path')
+const { join, basename, extname } = window.require('path')
 const { remote } = window.require('electron')
 const Store = window.require('electron-store')
 const fileStore = new Store({'name': 'Files Data'})
@@ -134,7 +134,32 @@ function App() {
         {name: 'Markdown files', extensions: ['md']}
       ]
     }, (paths) => {
-      console.log(paths)
+      if (Array.isArray(paths)) {
+        const filteredPaths = paths.filter(path => {
+          const alreadyAdded = Object.values(files).find(file => {
+            return file.path === path
+          })
+          return !alreadyAdded
+        })
+        const importFilesArr = filteredPaths.map(path => {
+          return {
+            id: uuidv4(),
+            title: basename(path, extname(path)),
+            path,
+          }
+        })
+        console.log(importFilesArr)
+        const newFiles = { ...files, ...flattenArr(importFilesArr)}
+        setFiles(newFiles)
+        saveFilesToStore(newFiles)
+        if (importFilesArr.length > 0) {
+          remote.dialog.showMessageBox({
+            type: 'info',
+            title: `成功导入了${importFilesArr.length}个文件`,
+            message: `成功导入了${importFilesArr.length}个文件`,
+          })
+        }
+      }
     })
   }
   return (
