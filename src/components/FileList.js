@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash,faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
 import PropTypes from 'prop-types'
+import useContextMenu from '../hooks/useContextMenu'
 import { nodeInternals } from 'stack-utils';
 const { remote } = window.require('electron')
 const { Menu, MenuItem} = remote
@@ -16,34 +17,24 @@ const FileList = ({ files, onFileClick, onSaveEdit, onFileDelete }) => {
       onFileDelete(editItem.id)
     }
   }
-  useEffect(() => {
-    const menu = new Menu()
-    menu.append(new MenuItem({
-      label: '打开',
+  const clickedItem = useContextMenu([
+    {
+    label: '打开',
       click: () => {
-        console.log('clicking')
+        console.log('clicking', clickedItem.current)
       }
-    }))
-    menu.append(new MenuItem({
+    }, {
       label: '重命名',
       click: () => {
         console.log('renaming')
       }
-    }))
-    menu.append(new MenuItem({
+    }, {
       label: '删除',
       click: () => {
         console.log('deleting')
       }
-    }))
-    const handleContextMenu = (e) => {
-      menu.popup({ window: remote.getCurrentWindow() })
     }
-    window.addEventListener('contextmenu', handleContextMenu)
-    return () => {
-      window.removeEventListener('contextmenu', handleContextMenu)
-    }
-  })
+  ], '.file-list')
   useEffect(() => {
     const handleInputEvent = (event) => {
       const { keyCode } = event
