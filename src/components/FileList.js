@@ -4,6 +4,7 @@ import { faEdit, faTrash,faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
 import PropTypes from 'prop-types'
 import useContextMenu from '../hooks/useContextMenu'
+import { getParentNode } from '../utils/helper'
 import { nodeInternals } from 'stack-utils';
 const { remote } = window.require('electron')
 const { Menu, MenuItem} = remote
@@ -21,20 +22,31 @@ const FileList = ({ files, onFileClick, onSaveEdit, onFileDelete }) => {
     {
     label: '打开',
       click: () => {
-        console.log('clicking', clickedItem.current)
+        const parentElement = getParentNode(clickedItem.current, 'file-item')
+        if (parentElement) {
+          onFileClick(parentElement.dataset.id)
+        }
       }
     }, {
       label: '重命名',
       click: () => {
-        console.log('renaming')
+        const parentElement = getParentNode(clickedItem.current, 'file-item')
+        if (parentElement) {
+          const { id, title } = parentElement.dataset
+          setEditStatus(id)
+          setValue(title)
+        }
       }
     }, {
       label: '删除',
       click: () => {
-        console.log('deleting')
+        const parentElement = getParentNode(clickedItem.current, 'file-item')
+        if (parentElement) {
+          onFileDelete(parentElement.dataset.id)
+        }
       }
     }
-  ], '.file-list')
+  ], '.file-list', [files])
   useEffect(() => {
     const handleInputEvent = (event) => {
       const { keyCode } = event
@@ -66,6 +78,8 @@ const FileList = ({ files, onFileClick, onSaveEdit, onFileDelete }) => {
            <li
              className="list-group-item bg-light row d-flex align-items-center file-item mx-0"
              key={file.id}
+             data-id={file.id}
+             data-title={file.title}
            >
             { (file.id !== editStatus && !file.isNew) &&
             <>
