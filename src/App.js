@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { faPlus, faFileImport, faSave } from '@fortawesome/free-solid-svg-icons';
 import SimpleMDE from "react-simplemde-editor";
 import uuidv4 from 'uuid/v4'
@@ -12,7 +12,7 @@ import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
 const { join, basename, extname, dirname } = window.require('path')
-const { remote } = window.require('electron')
+const { remote, ipcRenderer } = window.require('electron')
 const Store = window.require('electron-store')
 const fileStore = new Store({'name': 'Files Data'})
 const saveFilesToStore = (files) => {
@@ -161,6 +161,15 @@ function App() {
       }
     })
   }
+  useEffect(() => {
+    const callback = () => {
+      console.log('hello')
+    }
+    ipcRenderer.on('create-new-file', callback)
+    return () => {
+      ipcRenderer.removeListener('create-new-file', callback)
+    }
+  })
   return (
     <div className="App container-fluid px-0">
       <div className="row no-gutters">
