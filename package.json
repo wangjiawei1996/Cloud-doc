@@ -12,6 +12,7 @@
     "classnames": "^2.2.6",
     "electron-store": "^5.1.0",
     "node-sass": "^4.13.0",
+    "qiniu": "^7.3.0",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-scripts": "3.2.0",
