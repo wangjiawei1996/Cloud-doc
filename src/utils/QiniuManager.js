@@ -18,29 +18,29 @@ class QiniuManager {
     const formUploader = new qiniu.form_up.FormUploader(this.config);
     const putExtra = new qiniu.form_up.PutExtra();
     //文件上传
-    formUploader.putFile(uploadToken, key, localFilePath, putExtra, function(respErr,
-      respBody, respInfo) {
+    return new Promise((resolve, reject) => {
+      formUploader.putFile(uploadToken, key, localFilePath, putExtra,this._handleCallback(resolve, reject));
+    })
+  }
+  deleteFile(key) {
+    return new Promise((resolve, reject) => {
+      this.bucketManager.delete(this.bucket, key, this._handleCallback(resolve, reject))
+    })
+  }
+  _handleCallback(resolve, reject) {
+    return (respErr,respBody, respInfo) => {
       if (respErr) {
         throw respErr;
       }
       if (respInfo.statusCode === 200) {
-        console.log(respBody);
+        resolve(respBody);
       } else {
-        console.log(respInfo.statusCode);
-        console.log(respBody);
+        reject({
+          statusCode: respInfo.statusCode,
+          body: respBody
+        }) 
       }
-    });
-  }
-  deleteFile(key) {
-    this.bucketManager.delete(this.bucket, key, function(err, respBody, respInfo) {
-      if (err) {
-        console.log(err);
-        //throw err;
-      } else {
-        console.log(respInfo.statusCode);
-        console.log(respBody);
-      }
-    })
+    }
   }
 }
 module.exports = QiniuManager
