@@ -27,6 +27,25 @@ class QiniuManager {
       this.bucketManager.delete(this.bucket, key, this._handleCallback(resolve, reject))
     })
   }
+  getBucketDomain() {
+    const reqURL = `http://api.qiniu.com/v6/domain/list?tbl=${this.bucket}`
+    const digest = qiniu.util.generateAccessToken(this.mac, reqURL)
+    return new Promise((resolve, reject) => {
+      qiniu.rpc.postWithoutForm(reqURL, digest, this._handleCallback(resolve, reject))
+    })
+  }
+  generateDownloadLink(key) {
+    const domainPromise = this.publicBucketDomain ? Promise.resolve([this.publicBucketDomain]) : this.getBucketDomain()
+    return domainPromise.then(data => {
+      if (Array.isArray(data) && data.length > 0) {
+        const pattern = /^https?/
+        this.publicBucketDomain = pattern.test(data[0]) ? data[0] : `http://${data[0]}`
+        return this.bucketManager.publicDownloadUrl(this.publicBucketDomain, key)
+      } else {
+        throw Error('域名未找到， 请查看存储空间是否已经过期')
+      }
+    })
+  }
   _handleCallback(resolve, reject) {
     return (respErr,respBody, respInfo) => {
       if (respErr) {
