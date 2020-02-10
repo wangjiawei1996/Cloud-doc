@@ -1,7 +1,8 @@
 const { app, shell, ipcMain } = require('electron')
 const Store = require('electron-store')
-const settingsStore = new Store({ name: 'settings'})
-const qiniuIsConfiged = ['accessKey', 'secretKey', 'bucketName'].every(key => !!settingsStore.get(key))
+const settingsStore = new Store({ name: 'Settings'})
+
+const qiniuIsConfiged =  ['accessKey', 'secretKey', 'bucketName'].every(key => !!settingsStore.get(key))
 let enableAutoSync = settingsStore.get('enableAutoSync')
 let template = [{
   label: '文件',
@@ -11,19 +12,19 @@ let template = [{
     click: (menuItem, browserWindow, event) => {
       browserWindow.webContents.send('create-new-file')
     }
-  }, {
+  },{
     label: '保存',
     accelerator: 'CmdOrCtrl+S',
     click: (menuItem, browserWindow, event) => {
       browserWindow.webContents.send('save-edit-file')
     }
-  }, {
+  },{
     label: '搜索',
     accelerator: 'CmdOrCtrl+F',
     click: (menuItem, browserWindow, event) => {
       browserWindow.webContents.send('search-file')
     }
-  }, {
+  },{
     label: '导入',
     accelerator: 'CmdOrCtrl+O',
     click: (menuItem, browserWindow, event) => {
@@ -64,6 +65,36 @@ let template = [{
   ]
 },
 {
+  label: '云同步',
+  submenu: [{
+    label: '设置',
+    accelerator: 'CmdOrCtrl+,',
+    click: () => {
+      ipcMain.emit('open-settings-window')
+    }
+  }, {
+    label: '自动同步',
+    type: 'checkbox',
+    enabled: qiniuIsConfiged,
+    checked: enableAutoSync,
+    click: () => {
+      settingsStore.set('enableAutoSync', !enableAutoSync)
+    }
+  }, {
+    label: '全部同步至云端',
+    enabled: qiniuIsConfiged,
+    click: () => {
+      ipcMain.emit('upload-all-to-qiniu')
+    }
+  }, {
+    label: '从云端下载到本地',
+    enabled: qiniuIsConfiged,
+    click: () => {
+      
+    }
+  }]
+},
+{
   label: '视图',
   submenu: [
     {
@@ -73,36 +104,6 @@ let template = [{
         if (focusedWindow)
           focusedWindow.reload();
       }
-    },
-    {
-      label: '云同步',
-      submenu: [{
-        label: '设置',
-        accelerator: 'CmdOrCtrl+,',
-        click: () => {
-          ipcMain.emit('open-settings-window')
-        }
-      }, {
-        label: '自动同步',
-        type: 'checkbox',
-        enabled: qiniuIsConfiged,
-        checked: enableAutoSync,
-        click: () => {
-          settingsStore.set('enableAutoSync', !enableAutoSync)
-        }
-      }, {
-        label: '全部同步至云端',
-        enabled: qiniuIsConfiged,
-        click: () => {
-          ipcMain.emit('upload-all-to-qiniu')
-        }
-      }, {
-        label: '从云端下载到本地',
-        enabled: qiniuIsConfiged,
-        click: () => {
-          
-        }
-      }]
     },
     {
       label: '切换全屏幕',
@@ -154,7 +155,9 @@ let template = [{
       click: () => { shell.openExternal('http://electron.atom.io') }
     },
   ]
-}]
+},
+]
+
 if (process.platform === 'darwin') {
   const name = app.getName()
   template.unshift({
@@ -206,4 +209,5 @@ if (process.platform === 'darwin') {
     }
   })
 }
+
 module.exports = template
