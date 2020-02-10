@@ -1,4 +1,4 @@
-const { remote } = require('electron')
+const { remote, ipcRenderer } = require('electron')
 const Store = require('electron-store')
 const settingsStore = new Store({name: 'Settings'})
 const qiniuConfigArr = ['#savedFileLocation', '#accessKey', '#secretKey', '#bucketName']
@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsStore.set(id, value ? value : '')
       }
     })
+    ipcRenderer.send('config-is-saved')
     remote.getCurrentWindow().close()
   })
   $('.nav-tabs').addEventListener('click', (e) => {
