@@ -50,11 +50,16 @@ function App() {
   const fileClick = (fileID) => {
     setActiveFileID(fileID)
     const currentFile = files[fileID]
+    const { id, title, path, isLoaded} = currentFile
     if (!currentFile.isLoaded) {
-      fileHelper.readFile(currentFile.path).then(value => {
-        const newFile = { ...files[fileID], body: value, isLoaded: true }
-        setFiles({ ...files, [fileID]: newFile})
-      })
+      if (getAutoSync()) {
+        ipcRenderer.send('down-file', { key: `${title}.md`, path, id})
+      } else {
+        fileHelper.readFile(currentFile.path).then(value => {
+          const newFile = { ...files[fileID], body: value, isLoaded: true }
+          setFiles({ ...files, [fileID]: newFile})
+        })
+      }
     }
     if (!openedFileIDs.includes(fileID)) {
       setOpenedFileIDs([ ...openedFileIDs, fileID ])
@@ -177,11 +182,27 @@ function App() {
     setFiles(newFiles)
     saveFilesToStore(newFiles)
   }
+  const activeFileDownloaded = (event, message) => {
+    const currentFile = files[message.id]
+    const { id, path} = currentFile
+    fileHelper.readFile(path).then(value => {
+      let newFile
+      if (message.status === 'downloaded-success') {
+        newFile = { ...files[id], body: value, isLoaded: true, isSynced: true, updatedAt: new Date().getTime()}
+      } else {
+        newFile = { ...files[id], body: value, isLoaded: true, }
+      }
+      const newFiles = { ...files, [id]: newFile}
+      setFiles(newFiles)
+      saveFilesToStore(newFiles)
+    })
+  }
   useIpcRenderer({
     'create-new-file': createNewFile,
     'import-file': importFiles,
     'save-edit-file': saveCurrentFile,
-    'active-file-uploaded': activeFileUploaded
+    'active-file-uploaded': activeFileUploaded,
+    'file-downloaded': activeFileDownloaded
   })
   return (
     <div className="App container-fluid px-0">
