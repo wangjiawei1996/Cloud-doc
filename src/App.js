@@ -199,12 +199,26 @@ function App() {
       saveFilesToStore(newFiles)
     })
   }
+  const filesUploaded = () => {
+    const newFils = objToArr(files).reduce((result, file) => {
+      const currentTime = new Date().getTime()
+      result[file.id] = {
+        ...files[file.id],
+        isSynced: true,
+        updatedAt: currentTime,
+      }
+      return result
+    }, {})
+    setFiles(newFils)
+    saveFilesToStore(newFils)
+  }
   useIpcRenderer({
     'create-new-file': createNewFile,
     'import-file': importFiles,
     'save-edit-file': saveCurrentFile,
     'active-file-uploaded': activeFileUploaded,
     'file-downloaded': activeFileDownloaded,
+    'files-uploaded': filesUploaded,
     'loading-status': (message, status) => { setLoading(status)}
   })
   return (

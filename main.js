@@ -72,9 +72,25 @@ app.on('ready', () => {
   })
   ipcMain.on('upload-all-to-qiniu', () => {
     mainWindow.webContents.send('loading-status', true)
-    setTimeout(() => {
+    const manager = createManager()
+    const filesObj = fileStore.get('files') || {}
+    const uploadPromiseArr = Object.keys(filesObj).map(key => {
+      const file = filesObj[key]
+      return manager.uploadFile(`${file.title}.md`, file.path)
+    })
+    Promise.all(uploadPromiseArr).then(result => {
+      console.log(result)
+      dialog.showMessageBox({
+        type: 'info',
+        title: `成功上传了${result.length}个文件`,
+        message: `成功上传了${result.length}个文件`
+      })
+      mainWindow.webContents.send('files-uploaded')
+    }).catch(() => {
+      dialog.showErrorBox('同步失败', '请检查七牛云参数是否正确')
+    }).finally(() => {
       mainWindow.webContents.send('loading-status', false)
-    }, 2000)
+    })
   })
   ipcMain.on('config-is-saved', () => {
     // watch out menu items index for mac and windows
