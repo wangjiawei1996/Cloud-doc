@@ -10,6 +10,21 @@ class QiniuManager {
     this.config.zone = qiniu.zone.Zone_z0;
     this.bucketManager = new qiniu.rs.BucketManager(this.mac, this.config);
   }
+  moveFile(srcKey, destKey) {
+    return new Promise((resolve, reject) => {
+      const options = {
+        force: true
+      }
+      this.bucketManager.move(
+        this.bucket,
+        srcKey,
+        this.bucket,
+        destKey,
+        options,
+        this._handleCallback(resolve, reject)
+      )
+    })
+  }
   uploadFile(key, localFilePath) {
     const options = {
       scope: this.bucket + ":" + key

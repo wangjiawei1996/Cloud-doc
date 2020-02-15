@@ -100,11 +100,20 @@ function App() {
         tabClose(id)
       })
     }
+    if (getAutoSync()) {
+      ipcRenderer.send('delete-file', { key: `$files[id].title.md` })
+    }
   }
   const updateFileName = (id, title,isNew) => {
     const newPath = isNew ? join(savedLocation, `${title}.md`) : join(dirname(files[id].path), `${title}.md`)
     const modifiedFile = { ...files[id], title, isNew: false, path: newPath }
     const newFiles = { ...files, [id]: modifiedFile }
+    if (getAutoSync()) {
+      ipcRenderer.send('move-file', {
+        srcKey: `${files[id].title}.md`,
+        destKey: `${title}.md`
+      })
+    }
     if (isNew) {
       fileHelper.writeFile(newPath, files[id].body).then(() => {
         setFiles(newFiles)

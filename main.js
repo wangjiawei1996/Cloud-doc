@@ -92,6 +92,31 @@ app.on('ready', () => {
       mainWindow.webContents.send('loading-status', false)
     })
   })
+  ipcMain.on('delete-file', (event, data) => {
+    const manager = createManager()
+    manager.getStat(data.key).then((res) => {
+      manager.deleteFile(data.key).then(() => {
+        dialog.showMessageBox({
+          type: 'info',
+          title: '删除成功!',
+          message: `删除成功!`
+        })
+      })
+    }).catch(err => {
+      dialog.showErrorBox('删除的文件不在云端')
+    })
+  })
+  ipcMain.on('move-file', (event, data) => {
+    const manager = createManager()
+    const { srcKey, destKey } = data
+    manager.getStat(srcKey).then((res) => {
+      manager.moveFile(srcKey, destKey).then(() => {
+        console.log('重命名成功')
+      })
+    }).catch(err => {
+      console.log('重命名的文件不在云端', err)
+    })
+  })
   ipcMain.on('config-is-saved', () => {
     // watch out menu items index for mac and windows
     let qiniuMenu = process.platform === 'darwin' ? menu.items[3] : menu.items[2]
