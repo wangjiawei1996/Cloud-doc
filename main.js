@@ -1,4 +1,5 @@
 const { app, Menu, ipcMain, dialog } = require('electron')
+const uuidv4 = require('uuid/v4')
 const isDev = require('electron-is-dev')
 const path = require('path')
 const menuTemplate = require('./src/menuTemplate')
@@ -16,8 +17,8 @@ const createManager = () => {
 }
 app.on('ready', () => {
   const mainWindowConfig = {
-    width: 1440,
-    height: 768,
+    width: 1024,
+    height: 680,
   }
   const urlLocation = isDev ? 'http://localhost:3000' : 'dummyurl'
   mainWindow = new AppWindow(mainWindowConfig, urlLocation)
@@ -88,13 +89,109 @@ app.on('ready', () => {
       mainWindow.webContents.send('files-uploaded')
     }).catch(() => {
       dialog.showErrorBox('同步失败', '请检查七牛云参数是否正确')
-    }).finally(() => {
+    })
+    .finally(() => {
       mainWindow.webContents.send('loading-status', false)
     })
   })
+  ipcMain.on('download-all-to-qiniu', () => {
+    mainWindow.webContents.send('loading-status', true)
+    const filesObj = fileStore.get('file') || {}
+    const localFiles = Object.keys(filesObj).reduce((files, fileKey) => {
+      const title = filesObj[fileKey].title + '.md'
+      files[title] = filesObj[fileKey]
+      return files
+    }, {})
+    const manager = createManager()
+    const savedLocation =
+      settingsStore.get('savedFileLocation') || app.getPath('documents')
+    let downloadFiles = []
+    manager
+      .getFilesList()
+      .then(({ items }) => {
+        // console.log('返回', items)
+        // 和本地列表进行对比，下载文件应该是比本地新的或本地没有的
+        downloadFiles = items.filter(item => {
+          if (localFiles[item.key]) {
+            console.log('本地存在', item.key)
+            return item.putTime / 10000 > localFiles[item.key].updatedAt
+          } else {
+            console.log('本地不存在', item.key)
+            return true
+          }
+        })
+        console.log('需要下载的文件列表', downloadFiles)
+        const downloadPromiseArr = downloadFiles.map(item => {
+          // 本地存在的按原路径下载，不存在的按设置路径下载
+          if (localFiles[item.key]) {
+            return manager.downloadFile(item.key, localFiles[item.key].path)
+          } else {
+            return manager.downloadFile(
+              item.key,
+              path.join(savedLocation, item.key)
+            )
+          }
+        })
+        return Promise.all(downloadPromiseArr)
+      })
+      .then(arr => {
+        dialog.showMessageBox({
+          type: 'info',
+          title: `本地下载更新完毕！`,
+          message: `本地下载更新完毕！`
+        })
+        // // 生成一个新的key为id, value为文件详情的object
+        // 本地存在的对象覆盖掉，不存在的新建一个文件对象
+        const finalFilesObj = downloadFiles.reduce(
+          (newFilesObj, qiniuFile) => {
+            const currentFile = localFiles[qiniuFile.key]
+            if (currentFile) {
+              const updateItem = {
+                ...currentFile,
+                isSynced: true,
+                updatedAt: new Date().getTime()
+              }
+              return {
+                ...newFilesObj,
+                [currentFile.id]: updateItem
+              }
+            } else {
+              const newId = uuidv4()
+              const title = qiniuFile.key.split('.')[0]
+              const newItem = {
+                id: newId,
+                title,
+                body: '## 请输出 Markdown',
+                createdAt: new Date().getTime(),
+                path: path.join(savedLocation, `${title}.md`),
+                isSynced: true,
+                updatedAt: new Date().getTime()
+              }
+              return {
+                ...newFilesObj,
+                [newId]: newItem
+              }
+            }
+          },
+          { ...filesObj }
+        )
+        console.log('更新本地数据', finalFilesObj)
+        mainWindow.webContents.send('files-downLoaded', {
+          newFiles: finalFilesObj
+        })
+      })
+      .catch(() => {
+        dialog.showErrorBox('下载失败', '下载失败')
+      })
+      .finally(() => {
+        mainWindow.webContents.send('loading-status', false)
+      })
+  })
   ipcMain.on('delete-file', (event, data) => {
     const manager = createManager()
-    manager.getStat(data.key).then((res) => {
+    manager
+      .getStat(data.key)
+      .then((res) => {
       manager.deleteFile(data.key).then(() => {
         dialog.showMessageBox({
           type: 'info',
@@ -108,12 +205,15 @@ app.on('ready', () => {
   })
   ipcMain.on('move-file', (event, data) => {
     const manager = createManager()
-    const { srcKey, destKey } = data
-    manager.getStat(srcKey).then((res) => {
-      manager.moveFile(srcKey, destKey).then(() => {
+    const { srcKey, destKey, path } = data
+    manager
+      .getStat(srcKey)
+      .then((res) => {
+        manager.moveFile(srcKey, destKey).then(() => {
         console.log('重命名成功')
       })
-    }).catch(err => {
+    })
+    .catch(err => {
       console.log('重命名的文件不在云端', err)
     })
   })

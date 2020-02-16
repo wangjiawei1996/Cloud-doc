@@ -108,10 +108,28 @@ function App() {
     const newPath = isNew ? join(savedLocation, `${title}.md`) : join(dirname(files[id].path), `${title}.md`)
     const modifiedFile = { ...files[id], title, isNew: false, path: newPath }
     const newFiles = { ...files, [id]: modifiedFile }
+    const oldName = files[id].title
+    const newName = title
+    if (files[id].title !== title) {
+      for(let i = 0; i < filesArr.length; i++) {
+        const file = filesArr[i]
+        if (file.title === title) {
+          return
+        }
+      }
+    }
+    let path
+    if (isNew) {
+      path = newPath
+      fileHelper.writeFile(newPath, files[id].body).then(() => {
+        setFiles(newFiles)
+        saveFilesToStore(newFiles)
+      })
+    }
     if (getAutoSync()) {
       ipcRenderer.send('move-file', {
-        srcKey: `${files[id].title}.md`,
-        destKey: `${title}.md`
+        srcKey: `${oldName}.md`,
+        destKey: `${newName}.md`
       })
     }
     if (isNew) {
@@ -221,12 +239,16 @@ function App() {
     setFiles(newFils)
     saveFilesToStore(newFils)
   }
+  const filesDownLoaded = (event, {newFiles}) => {
+    setFiles(newFiles)
+    saveFilesToStore(newFiles)
+  }
   useIpcRenderer({
     'create-new-file': createNewFile,
     'import-file': importFiles,
     'save-edit-file': saveCurrentFile,
     'active-file-uploaded': activeFileUploaded,
-    'file-downloaded': activeFileDownloaded,
+    'file-downloaded': filesDownLoaded,
     'files-uploaded': filesUploaded,
     'loading-status': (message, status) => { setLoading(status)}
   })

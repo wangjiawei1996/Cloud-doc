@@ -25,6 +25,16 @@ class QiniuManager {
       )
     })
   }
+  getFilesList() {
+    return new Promise((resolve, reject) => {
+      const options = {}
+      this.bucketManager.listPrefix(
+        this.bucket,
+        options,
+        this._handleCallback(resolve, reject)
+      )
+    })
+  }
   uploadFile(key, localFilePath) {
     const options = {
       scope: this.bucket + ":" + key
