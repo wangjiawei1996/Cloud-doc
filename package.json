@@ -4,32 +4,40 @@
   "main": "main.js",
   "private": true,
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.25",
-    "@fortawesome/free-brands-svg-icons": "^5.11.2",
-    "@fortawesome/free-solid-svg-icons": "^5.11.2",
-    "@fortawesome/react-fontawesome": "^0.1.7",
-    "axios": "^0.19.2",
+    "@fortawesome/fontawesome-svg-core": "^1.2.24",
+    "@fortawesome/free-brands-svg-icons": "^5.11.1",
+    "@fortawesome/free-solid-svg-icons": "^5.11.1",
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "axios": "^0.19.0",
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.6",
-    "electron-store": "^5.1.0",
-    "node-sass": "^4.13.0",
-    "qiniu": "^7.3.0",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
-    "react-scripts": "3.2.0",
+    "concurrently": "^4.1.2",
+    "cross-env": "^6.0.0",
+    "electron": "^6.0.10",
+    "electron-is-dev": "^1.1.0",
+    "electron-store": "^5.0.0",
+    "node-sass": "^4.12.0",
+    "qiniu": "^7.2.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-scripts": "3.1.2",
     "react-simplemde-editor": "^4.1.0",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "wait-on": "^3.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "onlyEle": "nodemon --watch main.js --watch src/menuTemplate.js --exec \"electron .\"",
-    "dev": "concurrently \"wait-on http://localhost:3000 && electron .\" \"cross-env BROWSER=none npm start\""
+    "ele": "nodemon --watch main.js --watch src/menuTemplate.js --exec \"electron .\"",
+    "dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && npm run ele\""
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "rules": {
+      "jsx-a11y/anchor-is-valid": "off"
+    }
   },
   "browserslist": {
     "production": [
@@ -44,10 +52,7 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^5.0.0",
-    "cross-env": "^6.0.3",
-    "electron": "^6.0.12",
-    "electron-is-dev": "^1.1.0",
-    "wait-on": "^3.3.0"
+    "devtron": "^1.4.0",
+    "nodemon": "^1.19.2"
   }
 }

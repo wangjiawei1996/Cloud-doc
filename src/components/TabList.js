@@ -4,33 +4,39 @@ import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import './TabList.scss'
-const TabList = ({ files, activeId, unsaveIds, onTabClick, onCloseTab}) => {
+
+const TabList = ({ files, activeId, unsaveIds, onTabClick, onCloseTab }) => {
   return (
     <ul className="nav nav-pills tablist-component">
       {files.map(file => {
-        const withUnsavedMark = unsaveIds.includes(file.id)
+        const withUnsaveMark = unsaveIds.includes(file.id)
         const fClassName = classNames({
           'nav-link': true,
           'active': file.id === activeId,
-          'withUnsaved': withUnsavedMark
+          'withUnsaved': withUnsaveMark
         })
         return (
           <li className="nav-item" key={file.id}>
-            <a 
+            <a
               href="#"
               className={fClassName}
-              onClick={(e) => {e.preventDefault(); onTabClick(file.id)}}
+              onClick={e => {
+                e.preventDefault()
+                onTabClick(file.id)
+              }}
             >
               {file.title}
-              <span 
-                className="ml-2 close-icon"
-                onClick={(e) => {e.stopPropagation(); onCloseTab(file.id)}}
-              >
-                <FontAwesomeIcon
-                  icon={faTimes} 
-                />
+              <span className="ml-2 close-icon" onClick={(e)=> {
+                e.stopPropagation()
+                onCloseTab(file.id)
+              }}>
+                <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
               </span>
-              { withUnsavedMark && <span className="rounded-circle ml-2 unsaved-icon"></span>}
+              {
+                withUnsaveMark && (
+                  <span className='rounded-circle ml-2 unsaved-icon'></span>
+                )
+              }
             </a>
           </li>
         )
@@ -41,11 +47,12 @@ const TabList = ({ files, activeId, unsaveIds, onTabClick, onCloseTab}) => {
 
 TabList.propTypes = {
   files: PropTypes.array,
-  activeId: PropTypes.string,
+  activityId: PropTypes.string,
   unsaveIds: PropTypes.array,
   onTabClick: PropTypes.func,
-  onCloseTab: PropTypes.func,
+  onCloseTab: PropTypes.func
 }
+
 TabList.defaultProps = {
   unsaveIds: []
 }
