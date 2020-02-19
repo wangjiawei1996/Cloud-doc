@@ -2,6 +2,12 @@
   "name": "cloud-doc",
   "version": "0.1.0",
   "main": "main.js",
+  "description": "Online Markdown Editor using cloud server",
+  "author": {
+    "name": "Jiawei wang",
+    "email": "906789088@qq.com"
+  },
+  "repository": "https://github.com/wangjiawei1996/Cloud-doc",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.24",
@@ -31,7 +37,15 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "ele": "nodemon --watch main.js --watch src/menuTemplate.js --exec \"electron .\"",
-    "dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && npm run ele\""
+    "dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && npm run ele\"",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "prepack": "npm run build"
+  },
+  "build": {
+    "appId": "cloudDoc",
+    "productName": "云笔记文档",
+    "copyright": "Copyright © 2020 ${author}"
   },
   "eslintConfig": {
     "extends": "react-app",
@@ -53,6 +67,7 @@
   },
   "devDependencies": {
     "devtron": "^1.4.0",
+    "electron-builder": "^22.3.2",
     "nodemon": "^1.19.2"
   }
 }

@@ -18,11 +18,11 @@ const createManager = () => {
 
 app.on('ready', () => {
   const mainWindowConfig = {
-    width: 1024,
-    height: 680
+    width: 1440,
+    height: 768
   }
 
-  const urlLocation = isDev ? 'http://localhost:3000/' : 'dummyurl'
+  const urlLocation = isDev ? 'http://localhost:3000/' : `file://${path.join(__dirname, './build/index.html')}`
   // mainWindow.loadURL(urlLocation)
   mainWindow = new AppWindow(mainWindowConfig, urlLocation)
   // 窗口关闭后进行回收
@@ -297,6 +297,4 @@ app.on('ready', () => {
       switchItems(false)
     }
   })
-
-  mainWindow.webContents.openDevTools() // 打开开发者工具
 })
