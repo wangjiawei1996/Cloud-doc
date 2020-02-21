@@ -1,6 +1,6 @@
 {
   "name": "cloud-doc",
-  "version": "0.1.0",
+  "version": "1.1.1",
   "main": "main.js",
   "description": "Online Markdown Editor using cloud server",
   "author": {
@@ -10,37 +10,23 @@
   "repository": "https://github.com/wangjiawei1996/Cloud-doc",
   "private": true,
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.24",
-    "@fortawesome/free-brands-svg-icons": "^5.11.1",
-    "@fortawesome/free-solid-svg-icons": "^5.11.1",
-    "@fortawesome/react-fontawesome": "^0.1.4",
-    "axios": "^0.19.0",
     "bootstrap": "^4.3.1",
-    "classnames": "^2.2.6",
-    "concurrently": "^4.1.2",
-    "cross-env": "^6.0.0",
-    "electron-is-dev": "^1.1.0",
-    "electron-store": "^5.0.0",
-    "node-sass": "^4.12.0",
-    "qiniu": "^7.2.2",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "react-scripts": "3.1.2",
-    "react-simplemde-editor": "^4.1.0",
-    "uuid": "^3.3.3",
-    "wait-on": "^3.3.0"
+    "electron-store": "^5.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "buildMain": "webpack",
     "ele": "nodemon --watch main.js --watch src/menuTemplate.js --exec \"electron .\"",
     "dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && npm run ele\"",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "prepack": "npm run build",
-    "predist": "npm run build"
+    "release": "cross-env GH_TOKEN=8e02fdd8bfc54e4e7d64b44a8652bf5b3e44603b electron-builder",
+    "prerelease": "npm run build && npm run buildMain",
+    "prepack": "npm run build && npm run buildMain",
+    "predist": "npm run build && npm run buildMain"
   },
   "homepage": "./",
   "build": {
@@ -51,15 +37,17 @@
       "build/**/*",
       "node_modules/**/*",
       "settings/**/*",
-      "package.json",
-      "main.js",
-      "./src/menuTemplate.js",
-      "./src/AppWindow.js",
-      "./src/utils/QiniuManager.js "
+      "package.json"
     ],
     "directories": {
       "buildResources": "assets"
     },
+    "extraMetadata": {
+      "main": "./build/main.js"
+    },
+    "publish": [
+      "github"
+    ],
     "extends": null,
     "mac": {
       "category": "public.app-category.productivity",
@@ -121,9 +109,28 @@
     ]
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.24",
+    "@fortawesome/free-brands-svg-icons": "^5.11.1",
+    "@fortawesome/free-solid-svg-icons": "^5.11.1",
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "axios": "^0.19.0",
+    "classnames": "^2.2.6",
+    "concurrently": "^4.1.2",
+    "cross-env": "^6.0.0",
     "devtron": "^1.4.0",
     "electron": "^6.0.10",
     "electron-builder": "^22.3.2",
-    "nodemon": "^1.19.2"
+    "electron-is-dev": "^1.1.0",
+    "electron-updater": "^4.2.2",
+    "node-sass": "^4.12.0",
+    "nodemon": "^1.19.2",
+    "qiniu": "^7.2.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-scripts": "3.1.2",
+    "react-simplemde-editor": "^4.1.0",
+    "uuid": "^3.3.3",
+    "wait-on": "^3.3.0",
+    "webpack-cli": "^3.3.11"
   }
 }
