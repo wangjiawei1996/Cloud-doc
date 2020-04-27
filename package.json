@@ -57,7 +57,8 @@
       "background": "assets/appdmg.png",
       "icon": "assets/icon.icns",
       "iconSize": 100,
-      "contents": [{
+      "contents": [
+        {
           "x": 380,
           "y": 280,
           "type": "link",
