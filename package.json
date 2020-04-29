@@ -1,6 +1,6 @@
 {
   "name": "cloud-doc",
-  "version": "1.1.8",
+  "version": "1.1.1.9",
   "main": "main.js",
   "description": "Online Markdown Editor using cloud server",
   "author": {
@@ -23,7 +23,7 @@
     "dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && npm run ele\"",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "release": "cross-env GH_TOKEN=69fdba181ab3597ffd6b9fed99f6938a7d79ada9 electron-builder",
+    "release": "cross-env GH_TOKEN=2617d94929ea568ae00d6303174ed361c8fb24e9 electron-builder",
     "prerelease": "npm run build && npm run buildMain",
     "prepack": "npm run build && npm run buildMain",
     "predist": "npm run build && npm run buildMain"
